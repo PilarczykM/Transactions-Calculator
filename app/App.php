@@ -11,7 +11,7 @@ function getTransactionFiles(string $dirPath): array
         if (is_dir($file)) continue;
         match (pathinfo($file)['extension']) {
             "csv" => $csvFiles[] = $dirPath . $file,
-            default => $error[] = "Unsupported '" . $file . "' extension"
+            default => $error[] = "Unsupported '" . strtoupper(pathinfo($file)['extension']) . "' extension"
         };
     };
 
@@ -26,7 +26,7 @@ function getTransactions(string $fileName, ?callable $transactionHandler = null)
 
     $file = fopen($fileName, 'r');
 
-    fgetcsv($file);
+    fgetcsv($file); // Read first row to remove table header.
 
     $transactions = [];
 
@@ -43,7 +43,7 @@ function getTransactions(string $fileName, ?callable $transactionHandler = null)
 
 function extractTransaction(array $transactionRow): array
 {
-    [$date, $checkNumber, $description, $amount] = $transactionRow;
+    [$date, $checkNumber, $description, $amount] = $transactionRow; // Sily expectation that data will always be present Date | Check number | Description | Amount
 
     $amount = (float) str_replace(['$', ','], '', $amount);
 
